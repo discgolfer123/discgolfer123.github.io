@@ -1,0 +1,364 @@
+//Dylan Albrecht
+//CS 140
+//May 23rd, 2019
+//This is a program that displays a calendar.  You can enter a date manually or view today's date.
+//You can also scroll through each month manually.  Check out my sweet art too.  It's a crown.
+
+import java.util.*;
+
+public class MyCalendar {
+public static String endDays = "003128313031303131303130";
+public static String endDays2 = "312831303130313130313031";
+public static int SIZE = 5;
+
+   public static void main(String args[]) {
+      Scanner console = new Scanner(System.in);
+      Calendar wallCalendar = Calendar.getInstance();
+      
+      char x = '0';
+      int month = -1; //super important to set this before the while loop haha
+      int day = 0;
+      int totalDays = 0;
+      int counting = 0;
+      //This while loop does more than I would normally like to include in a main method, but it
+      //makes life so much easier to have it in here.
+      while(x != 'q') {
+         menu();
+         String command = console.next().toLowerCase();
+         x = command.charAt(0);
+         if(x == 'e') {
+            System.out.println();
+            String date = scanDate(); //Asks the user to input a date
+            month = monthFromDate(date); //pull the month from the input as an integer
+            day = dayFromDate(date); //pulls the date from the input as an integer
+            totalDays = counting(month);
+            drawMonth(totalDays, month, day);
+         } else if(x == 't') {
+            month = wallCalendar.get(Calendar.MONTH) + 1;
+            day = wallCalendar.get(Calendar.DATE);
+            totalDays = counting(month);
+            drawMonth(totalDays, month, day);
+         } else if(x == 'n') {
+            /*if the user jumps straight to pressing 'n' before other options, month will still
+            equal -1.  That will throw out the first option and force them to enter a new command */
+            if(month < 0) {
+               System.out.println("You must display a month first");
+            } else {
+               month++;
+               /*In order to get the calendar to wrap back around I included this if statement.
+               If you add one to the month in december, it will reset the month to january*/
+               if(month > 12) {
+                  month = 1;
+               }
+            //After changing the month number it'll run counting() again and redraw the month.
+            totalDays = counting(month);
+            drawMonth(totalDays, month, day);
+            }
+         } else if(x == 'p') {
+            if(month < 0) {
+               System.out.println("You must display a month first");
+            } else {
+               month--;
+               if(month < 1) {
+                  month = 12;
+               }
+            }
+            totalDays = counting(month);
+            drawMonth(totalDays, month, day);
+         } else if(x == 'q') {
+            System.out.println("quitter");
+         } else if(x == 'x') { 
+            System.out.println("The year is 20XX.  Everyone plays Fox at TAS levels of perfection.");
+         } else if(x == 'w') {
+            System.out.println("You do not recognize the bodies in the water.");
+         } else if(x == 'b') {
+            System.out.println("I'm blue ba da da dee ba da dum");
+         } else if(x == 'l') {
+            System.out.println("LEEEEEERROOOYYY JENKINS!");
+         } else {
+            System.out.println("Please enter a valid command");
+         }
+      counting++;
+      if(counting > 12 && x != 'q') { //in case someone runs through the program 12+ times.
+         System.out.println("Haven't you seen them all by now?");
+      }
+      }
+
+   
+   }
+
+   //This method displays the menu that users will use to navigate the program.
+   public static void menu() {
+      System.out.println("Please enter a command");
+      System.out.println("    \"e\" to enter a date and display the corresponding calendar");
+      System.out.println("    \"t\" to get today's date and display today's calendar");
+      System.out.println("    \"n\" to display the next month");
+      System.out.println("    \"p\" to display the previous month");
+      System.out.println("    \"q\" to quit the program");
+   }
+   
+   //This method asks the user for a date as input, returns that input as a string.
+   //If the date does not contain a '/', then the program will prompt the user again.
+   //For some reason my program would crash if I used console, so I made a second Scanner.
+   public static String scanDate() {
+      Scanner console2 = new Scanner(System.in);
+      System.out.print("You lookin' for a date? (mm/dd): ");
+      String date = console2.nextLine();
+      int check = date.indexOf('/');
+      while(check < 0) {
+         System.out.print("Oops try again. Please enter a valid date (mm/dd): ");
+         date = console2.nextLine();
+         check = date.indexOf('/');
+      }
+      System.out.println();
+      return date;
+   }
+   
+      //This method takes the previous method's return and pulls an integer value of the month out.
+      //Returns that integer value
+      public static int monthFromDate(String date) {
+         int slash = date.indexOf('/');
+         String temporary = date.substring(0, slash);
+         int month = Integer.parseInt(temporary);
+         return month;
+      }
+   
+   
+      //This method takes the input from the user as a parameter and returns the integer value of 
+      //the date to the main method.
+      public static int dayFromDate(String date) {
+         int slash = date.indexOf('/');
+         String temporary = date.substring(slash + 1);
+         int day = Integer.parseInt(temporary);
+         return day;
+      }
+   
+   //This program keeps track of how many days have passed in the year as a whole.  It returns
+   //that number as a parameter.  In order to work it must also use the current month as a 
+   //parameter.
+   public static int counting(int month) {
+      int totalDays = 0;
+      for(int i = 0; i < month; i++) {
+         String z = endDays.substring(2 * i, 2 * i + 2);
+         int y = Integer.parseInt(z);
+         totalDays += y;
+      }
+      return totalDays;
+   }
+
+   //This is the method that draws the grid that is actually the calendar.
+   //The parameter it accepts is the integer value of the month
+   public static void drawMonth(int totalDays, int month, int day) {
+      creativityArt();
+      displayMonth(month);
+      header();
+      if(month == 9 || month == 12) {
+         drawRow(0, totalDays, month, day);
+      }
+      drawRow(1, totalDays, month, day);
+      drawRow(2, totalDays, month, day);
+      drawRow(3, totalDays, month, day);
+      drawRow(4, totalDays, month, day);
+      drawRow(5, totalDays, month, day);
+      rowBorder();
+      displayDate(month, day);
+   }
+   
+      //This accepts the integer value of the month and displays that value centered above the month
+      public static void displayMonth(int month) {
+         for(int i = 0; i < SIZE * 7 / 2 - 1; i++) {
+            System.out.print(" ");
+         }
+         System.out.println(month);
+         System.out.println();
+      }
+      
+      //This method call shows the days of the week on top of the calendar.  The way it is designed,
+      //it can scale the letters in the day of the week up to three characters long at size 10, and
+      //down to one or two characters long (depending on which looks better) at size 5. 
+      public static void header() {
+         String sunday = "SUNDAY";
+         String monday = "MONDAY";
+         String tuesday = "TUESDAY";
+         String wednesday = "WEDNESDAY";
+         String thursday = "THURSDAY";
+         String friday = "FRIDAY";
+         String saturday = "SATURDAY";
+         System.out.print(" ");
+         System.out.print(monday.substring(0, SIZE / 3));
+         daySpacingMWF();
+         System.out.print(tuesday.substring(0, SIZE / 5 + 1));
+         daySpacing();
+         System.out.print(wednesday.substring(0, SIZE / 3));
+         daySpacingMWF();
+         System.out.print(thursday.substring(0, SIZE / 5 + 1));
+         daySpacing();
+         System.out.print(friday.substring(0, SIZE / 3));
+         daySpacingMWF();
+         System.out.print(saturday.substring(0, SIZE / 5 +1));
+         daySpacing();
+         System.out.print(sunday.substring(0, SIZE / 5 + 1));
+         System.out.println();
+      }
+      
+         //This method call provides the spacing after Sunday, Tuesday, Thursday, and Friday
+         public static void daySpacing() {
+            for(int dayspacing = 0; dayspacing < SIZE - (SIZE / 5 + 1); dayspacing++) {
+               System.out.print(" ");
+            }
+         }
+         
+         //This method call provides the spacing after Monday, Wednesday, and Friday
+         public static void daySpacingMWF() {
+            for(int dayspacingtwo = 0; dayspacingtwo < SIZE - (SIZE / 3); dayspacingtwo++) {
+               System.out.print(" ");
+            }
+         }
+      
+      //This method draws each individual row.  Parameter is the number row that it is (0-5)
+      public static void drawRow(int row, int totalDays, int month, int day) {
+         rowBorder();
+         dayRow(row, totalDays, month, day);
+         emptyRows();
+      }
+      
+         //This prints the border between each row
+         public static void rowBorder() {
+            String BORDER = "";
+            for(int i = 0; i <= SIZE * 7; i++) {
+               BORDER += "=";
+            }
+            System.out.println(BORDER);
+         }
+      
+         //This method accepts the number row that it is as a parameter and draws the line in the
+         //calendar that actually contains the date
+         public static void dayRow(int row, int totalDays, int month, int day) {
+            String endDay = endDays2.substring(2 * month - 2, 2 * month);
+            int finalDay = Integer.parseInt(endDay);
+            int cells = row * 7 - 6;
+            totalDays += 2;
+            int weekDay = 0;
+            if(month == 1) {
+               weekDay += 2;
+            } else {
+               weekDay = totalDays % 7;
+            }
+            for(int i = cells; i < cells + 7; i++) {
+               System.out.print("| ");
+               String dayLength = "";
+               if(i >= weekDay && i < finalDay + weekDay) {
+                  dayLength += i - weekDay + 1;
+                  if(i - weekDay + 1 == day) {
+                     dayLength += "*";
+                  }
+                  System.out.print(dayLength);
+               }
+               for(int spacing = 0; spacing < SIZE - 2 - dayLength.length(); spacing++) {
+                  System.out.print(" ");
+               }
+               dayLength = "";
+            }
+            System.out.println("|");
+         }
+      
+         //This method will form the rows that make up the empty space in the cells
+         //In other words, the rows that don't contain the date.
+         public static void emptyRows() {
+            for(int height = 0; height < SIZE / 2 - 1; height++) {
+               for(int rowlength = 0; rowlength < 7; rowlength++) {
+                  System.out.print("|");
+                  for(int empty = 0; empty < SIZE - 1; empty++) {
+                     System.out.print(" ");
+                  }
+               }
+               System.out.println("|");
+            }
+         }
+   
+      //This method accepts the month and date as parameters and displays them beneath the calendar
+      public static void displayDate(int month, int day) {
+         System.out.println("month: " + month);
+         System.out.println("day: " + day);
+      }
+   
+   //This method draws my crown.  Because I'm the king.
+   //That's a joke, I truly don't think of myself as the king.
+   //But it's still a neat crown.
+   public static void creativityArt() {
+      gemStoneTop();
+      gemStoneBottom();
+      crownTopHalf();
+      crownBottomHalf();
+   }
+   
+      //This method will create the top half of the gemstone that sits atop the crown
+      public static void gemStoneTop() {  
+         System.out.println();
+         for(int i = 1; i <= SIZE - 1; i++) {
+            for(int spacing = 1; spacing <= SIZE * 4 - i; spacing++) {
+               System.out.print(" ");
+            }
+            System.out.print("/");
+            for(int jewels = 1; jewels <= 2 * i; jewels++) {
+               System.out.print("+");
+            }
+            System.out.println("\\");
+         }
+      }
+   
+      //This method will create the bottom half of the gemstone that sits atop the crown
+      public static void gemStoneBottom() {
+         for(int i = SIZE - 1; i >= 1; i--) {
+            for(int spacing = i; spacing <= SIZE * 4 - 1; spacing++) {
+               System.out.print(" ");
+            }
+            System.out.print("\\");
+            for(int jewels = 2 * i; jewels >= 1; jewels--) {
+               System.out.print("+");
+            }
+            System.out.println("/");
+         }
+      }
+   
+      //This method will create the top half of the crown, the part that has the ridges
+      public static void crownTopHalf() {
+         for(int i = 1; i <= SIZE * 2; i++) {
+            System.out.print("|");
+            for(int space1 = 1; space1 <= i - 1; space1++) {
+               System.out.print("M");
+            }
+            System.out.print("\\");
+            for(int space2 = SIZE * 2; space2 >= i + 1; space2--) {
+               System.out.print("  ");
+            }
+            System.out.print("/");
+            for(int space3 = 1; space3 <= i - 1; space3++) {
+               System.out.print("MM");
+            }
+            System.out.print("\\");
+            for(int space4 = SIZE * 2; space4 >= i + 1; space4--) {
+               System.out.print("  ");
+            }
+            System.out.print("/");
+            for(int space5 = 1; space5 <= i - 1; space5++) {
+               System.out.print("M");
+            }
+            System.out.println("|");
+         }
+      }
+   
+      //This method will print the bottom half of the crown, which doesn't look as cool but is vital
+      //for the stability of the crown on the head of the ruler.
+      public static void crownBottomHalf() {
+         for(int i = 1; i <= SIZE / 3; i++) {
+            System.out.print("|");
+            for(int spacing = 1; spacing <= SIZE * 8; spacing++) {
+               System.out.print("M");
+            }
+            System.out.println("|");
+         }
+         System.out.println();
+      }
+
+}
